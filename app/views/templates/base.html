@@ -72,15 +72,33 @@
         tr.editing input { width: 100%; padding: 6px 9px; font-size: 13px; border-radius: 8px; }
         .links { margin-top: 18px; font-size: 13px; color: #94a3b8; }
         .links a { color: #6366f1; text-decoration: none; }
+        .nav { display: flex; gap: 14px; align-items: center; margin-bottom: 18px; font-size: 13px; color: #94a3b8; }
+        .nav a { color: #6366f1; text-decoration: none; }
+        h2 { margin: 22px 0 10px; font-size: 16px; color: #334155; }
+        .tiles { display: flex; gap: 10px; flex-wrap: wrap; }
+        .tile {
+            flex: 1 1 140px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            background: #eef2ff;
+            color: #4338ca;
+            border: none;
+            cursor: pointer;
+        }
+        .tile:hover { background: #e0e7ff; }
+        .tile-danger { background: #fee2e2; color: #b91c1c; }
+        .tile-danger:hover { background: #fecaca; }
+        td.method { font-family: Consolas, "Courier New", monospace; font-size: 12px; color: #0f766e; white-space: nowrap; }
     </style>
 </head>
 <body>
 <div class="card">
     {% block content %}{% endblock %}
-    <p class="links">
-        <a href="/docs">Swagger 文档</a> ·
-        <a href="/api/zjm">JSON 接口</a>
-    </p>
+    {% block footer %}{% endblock %}
 </div>
 {% block scripts %}{% endblock %}
 </body>

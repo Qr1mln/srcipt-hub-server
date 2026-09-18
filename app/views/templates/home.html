@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - ZJM Server{% endblock %}
+
+{% block content %}
+    <div class="nav">
+        <span class="who">当前用户：{{ username }}</span>
+        <a href="/logout">退出登录</a>
+    </div>
+
+    <h1>ZJM Server</h1>
+    <p class="subtitle">统一响应格式 {code, body, msg} · 数据存 SQLite</p>
+
+    <div class="tiles">
+        <a class="tile" href="/admin">数据管理页</a>
+        <a class="tile" href="/docs">Swagger 文档</a>
+        <a class="tile" href="/redoc">ReDoc 文档</a>
+        <a class="tile" href="/openapi.json">OpenAPI JSON</a>
+    </div>
+
+    <h2>接口路径</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>方法</th>
+                <th>路径</th>
+                <th>说明</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for endpoint in endpoints %}
+                <tr>
+                    <td class="method">{{ endpoint.method }}</td>
+                    <td class="key">{{ endpoint.path }}</td>
+                    <td>{{ endpoint.summary }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h2>服务</h2>
+    <div class="tiles">
+        <button class="tile tile-danger" id="shutdown-btn">关闭 exe（停止服务）</button>
+    </div>
+    <p id="tip" class="tip"></p>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const tip = document.getElementById('tip');
+        const shutdownBtn = document.getElementById('shutdown-btn');
+
+        function showTip(text, ok) {
+            tip.textContent = text;
+            tip.className = ok === null ? 'tip' : (ok ? 'tip ok' : 'tip err');
+        }
+
+        shutdownBtn.addEventListener('click', async () => {
+            if (!window.confirm('确定关闭服务吗？关闭后需要重新启动 exe。')) return;
+            shutdownBtn.disabled = true;
+            try {
+                const response = await fetch('/api/shutdown', {method: 'POST'});
+                const data = await response.json();
+                if (data.code === 200) {
+                    showTip('服务已关闭，可关闭本页面。', true);
+                } else {
+                    showTip(data.msg || '关闭失败', false);
+                    shutdownBtn.disabled = false;
+                }
+            } catch (error) {
+                // 服务被关闭时请求可能直接断开，这也代表关闭成功
+                showTip('服务已关闭，可关闭本页面。', true);
+            }
+        });
+    </script>
+{% endblock %}

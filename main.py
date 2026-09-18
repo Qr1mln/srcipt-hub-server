@@ -21,8 +21,9 @@ from fastapi.responses import JSONResponse
 
 from app.config.config import DEFAULT_CORS_ORIGINS, DEFAULT_HOST, DEFAULT_PORT, is_frozen, settings
 from app.config.logger import LOG_FILE, setup_logging
+from app.config.runtime import bind_server
 from app.controllers import api_router
-from app.middlewares import RequestLoggingMiddleware
+from app.middlewares import AuthGuardMiddleware, RequestLoggingMiddleware
 from app.repositories.zjm_repository import init_db
 
 # 参数校验失败时的中文说明
@@ -44,6 +45,9 @@ def create_app() -> FastAPI:
     )
 
     setup_logging()
+
+    # 页面登录校验（内层）
+    application.add_middleware(AuthGuardMiddleware)
 
     # 请求日志（后添加的中间件在外层）：先加日志、再加 CORS，
     # 这样 CORS 预检 OPTIONS 由外层直接响应，不写进日志，避免噪声
@@ -89,10 +93,15 @@ if __name__ == "__main__":
     args = parse_args()
     app = create_app()
     if is_frozen():
-        # 打包后无法用 "main:create_app" 字符串导入，也不能用 reload，直接传 app 对象
+        # 打包后无法用 "main:create_app" 字符串导入，也不能用 reload，直接传 app 对象；
+        # 用 Config + Server 是为了持有 Server 实例，供首页“关闭 exe”按钮优雅退出
         print(f"ZJM Server 已启动：http://{args.host}:{args.port}  (Ctrl+C 退出)")
-        print(f"日志文件：{LOG_FILE}")
-        uvicorn.run(app, host=args.host, port=args.port, access_log=False)
+        print(f"首页：http://{args.host}:{args.port}/login   日志文件：{LOG_FILE}")
+        server = uvicorn.Server(
+            uvicorn.Config(app, host=args.host, port=args.port, access_log=False)
+        )
+        bind_server(server)
+        server.run()
     else:
         # 工厂模式必须显式声明 factory=True，否则 uvicorn 会把 create_app 当作 ASGI 应用调用
         uvicorn.run("main:create_app", factory=True, host=args.host, port=args.port, reload=True, access_log=False)

@@ -15,8 +15,8 @@ BACKUP_COUNT = 3
 
 def setup_logging(level: int = logging.INFO) -> logging.Logger:
     """初始化根日志：控制台 + 滚动文件；重复调用不会重复添加 handler。"""
-    # 降低第三方库噪声（watchfiles 每次文件变化都会打 INFO）
-    for noisy in ("watchfiles", "watchfiles.main"):
+    # 降低第三方库噪声（watchfiles 每次文件变化都会打 INFO；httpx 是测试客户端）
+    for noisy in ("watchfiles", "watchfiles.main", "httpx", "httpx2", "httpcore", "httpcore2"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
 
     root = logging.getLogger()

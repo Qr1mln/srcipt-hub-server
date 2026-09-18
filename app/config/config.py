@@ -16,6 +16,15 @@ DEFAULT_PORT = 8000
 # 允许跨域的来源；["*"] 表示不限制来源（需要收紧时改成具体域名列表）
 DEFAULT_CORS_ORIGINS = ["*"]
 
+# 登录账号（写死，本地工具用）
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "123456"
+
+# 登录态 Cookie（HMAC 签名，无需额外依赖）
+AUTH_COOKIE = "zjm_token"
+AUTH_SECRET = "zjm-server-local-secret"
+AUTH_TTL_SECONDS = 12 * 3600
+
 
 def is_frozen() -> bool:
     """是否运行在 PyInstaller 打包后的环境中。"""

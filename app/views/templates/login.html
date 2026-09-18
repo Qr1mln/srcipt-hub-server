@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}登录 - ZJM Server{% endblock %}
+
+{% block content %}
+    <h1>登录</h1>
+    <p class="subtitle">请输入账号密码，登录后进入首页</p>
+
+    <form id="login-form" autocomplete="off">
+        <div class="form-row">
+            <input id="username" placeholder="账号" maxlength="32">
+            <input id="password" type="password" placeholder="密码" maxlength="32">
+            <button id="login-btn" type="submit">登录</button>
+        </div>
+    </form>
+    <p id="tip" class="tip">{{ error or '' }}</p>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const form = document.getElementById('login-form');
+        const tip = document.getElementById('tip');
+        const loginBtn = document.getElementById('login-btn');
+
+        function showTip(text, ok) {
+            tip.textContent = text;
+            tip.className = ok === null ? 'tip' : (ok ? 'tip ok' : 'tip err');
+        }
+
+        async function submitLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            if (!username || !password) {
+                showTip('账号和密码都不能为空', false);
+                return;
+            }
+            loginBtn.disabled = true;
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username: username, password: password}),
+                });
+                const data = await response.json();
+                if (data.code === 200) {
+                    const info = data.body[0] || {};
+                    showTip('登录成功，正在跳转…', true);
+                    window.location.href = info.redirect || '/';
+                } else {
+                    showTip(data.msg || '登录失败', false);
+                }
+            } catch (error) {
+                showTip('请求失败：' + error.message, false);
+            } finally {
+                loginBtn.disabled = false;
+            }
+        }
+
+        form.addEventListener('submit', submitLogin);
+        document.getElementById('username').focus();
+    </script>
+{% endblock %}

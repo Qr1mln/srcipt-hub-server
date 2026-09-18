@@ -29,7 +29,7 @@ def _fail(exc: Exception) -> ZjmResponse:
     return ZjmResponse.fail(ERROR_CODES.get(type(exc), 500), str(exc))
 
 
-@router.get("/", response_class=HTMLResponse, include_in_schema=False)
+@router.get("/admin", response_class=HTMLResponse, summary="数据管理页（需登录）", include_in_schema=False)
 def zjm_page(request: Request) -> HTMLResponse:
     """管理页面：展示列表，支持动态增、改、删。"""
     return render_zjm_page(request, zjm_service.list_items())
