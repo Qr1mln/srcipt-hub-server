@@ -1,3 +1,3 @@
-from app.models.greeting import Greeting
+from app.models.zjm import ZjmItem
 
-__all__ = ["Greeting"]
+__all__ = ["ZjmItem"]

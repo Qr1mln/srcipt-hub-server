@@ -9,6 +9,16 @@ venv/
 
 # 日志
 *.log
+logs/
+
+# 数据库
+data/
+*.db
+
+# 打包产物
+build/
+dist/
+*.exe
 
 # IDE / 助手本地数据
 .codebuddy/

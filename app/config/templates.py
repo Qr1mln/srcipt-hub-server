@@ -1,9 +1,10 @@
 """Jinja2 模板环境（View 层渲染引擎）。"""
 
-from pathlib import Path
-
 from fastapi.templating import Jinja2Templates
 
-TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "views" / "templates"
+from app.config.config import resource_dir
+
+# 打包后模板位于解包目录的 app/views/templates（见 zjm_server.spec 的 datas）
+TEMPLATES_DIR = resource_dir() / "app" / "views" / "templates"
 
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))

@@ -3,32 +3,32 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Hello World{% endblock %}</title>
+    <title>{% block title %}ZJM Server{% endblock %}</title>
     <style>
-        :root { color-scheme: light dark; }
+        :root { color-scheme: light; }
+        * { box-sizing: border-box; }
         body {
             margin: 0;
+            padding: 40px 16px;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
         }
         .card {
-            width: min(520px, 88vw);
-            padding: 40px 36px;
+            width: min(680px, 100%);
+            margin: 0 auto;
+            padding: 32px 30px 26px;
             border-radius: 20px;
-            background: rgba(255, 255, 255, 0.96);
+            background: rgba(255, 255, 255, 0.97);
             box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
-            text-align: center;
         }
-        h1 { margin: 0 0 8px; font-size: 32px; color: #1e293b; }
-        .subtitle { margin: 0 0 28px; font-size: 14px; color: #64748b; }
-        form { display: flex; gap: 10px; }
+        h1 { margin: 0 0 6px; font-size: 26px; color: #1e293b; }
+        .subtitle { margin: 0 0 22px; font-size: 13px; color: #64748b; }
+        .form-row { display: flex; gap: 10px; flex-wrap: wrap; }
         input {
-            flex: 1;
-            padding: 12px 14px;
+            flex: 1 1 140px;
+            min-width: 0;
+            padding: 11px 14px;
             font-size: 15px;
             border: 1px solid #cbd5e1;
             border-radius: 10px;
@@ -36,7 +36,7 @@
         }
         input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
         button {
-            padding: 12px 20px;
+            padding: 11px 22px;
             font-size: 15px;
             color: #fff;
             background: #6366f1;
@@ -45,13 +45,43 @@
             cursor: pointer;
         }
         button:hover { background: #4f46e5; }
-        .links { margin-top: 24px; font-size: 13px; color: #94a3b8; }
+        button:disabled { background: #a5b4fc; cursor: not-allowed; }
+        .tip { min-height: 20px; margin: 12px 0 6px; font-size: 13px; color: #64748b; }
+        .tip.ok { color: #16a34a; }
+        .tip.err { color: #dc2626; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; }
+        tbody tr:hover { background: #f8fafc; }
+        td.key { font-family: Consolas, "Courier New", monospace; color: #4f46e5; }
+        .table-wrap { max-height: 46vh; overflow: auto; }
+        td.actions { white-space: nowrap; text-align: right; }
+        .mini {
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 7px;
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+        .mini:hover { background: #e0e7ff; }
+        .mini.danger { background: #fee2e2; color: #dc2626; }
+        .mini.danger:hover { background: #fecaca; }
+        .mini.ghost { background: #f1f5f9; color: #475569; }
+        .mini.ghost:hover { background: #e2e8f0; }
+        tr.editing td { background: #f8fafc; }
+        tr.editing input { width: 100%; padding: 6px 9px; font-size: 13px; border-radius: 8px; }
+        .links { margin-top: 18px; font-size: 13px; color: #94a3b8; }
         .links a { color: #6366f1; text-decoration: none; }
     </style>
 </head>
 <body>
 <div class="card">
     {% block content %}{% endblock %}
+    <p class="links">
+        <a href="/docs">Swagger 文档</a> ·
+        <a href="/api/zjm">JSON 接口</a>
+    </p>
 </div>
+{% block scripts %}{% endblock %}
 </body>
 </html>
