@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}{{ message }}{% endblock %}
+
+{% block content %}
+    <h1>{{ message }}</h1>
+    <p class="subtitle">FastAPI MVC 示例 · 本页由 View 层 Jinja2 模板渲染</p>
+    <form action="/page/hello" method="get" onsubmit="return false;">
+        <input id="name" type="text" placeholder="输入名字，例如 Alice" autocomplete="off">
+        <button type="button" onclick="location.href='/page/hello/' + encodeURIComponent(document.getElementById('name').value)">问候</button>
+    </form>
+    <p class="links">
+        <a href="/docs">Swagger 文档</a> ·
+        <a href="/hello/World">JSON 接口</a>
+    </p>
+{% endblock %}
