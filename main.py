@@ -24,6 +24,7 @@ from app.config.logger import LOG_FILE, setup_logging
 from app.config.runtime import bind_server
 from app.controllers import api_router
 from app.middlewares import AuthGuardMiddleware, RequestLoggingMiddleware
+from app.repositories.category_repository import init_db as init_category_db
 from app.repositories.zjm_repository import init_db
 
 # 参数校验失败时的中文说明
@@ -63,6 +64,7 @@ def create_app() -> FastAPI:
     )
 
     init_db()
+    init_category_db()
     application.include_router(api_router)
 
     @application.exception_handler(RequestValidationError)

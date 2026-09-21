@@ -9,7 +9,7 @@ from app.config.config import AUTH_COOKIE
 from app.services.auth_service import auth_service
 
 # 需要登录才能访问的页面（API 保持开放，便于跨域前端直接调用）
-PROTECTED_PAGES = ("/", "/admin")
+PROTECTED_PAGES = ("/", "/admin", "/categories")
 
 
 class AuthGuardMiddleware(BaseHTTPMiddleware):

@@ -20,6 +20,9 @@ DEFAULT_CORS_ORIGINS = ["*"]
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "123456"
 
+# 控制台日志是否着色（文件日志始终为纯文本）
+LOG_COLOR_ENABLED = True
+
 # 登录态 Cookie（HMAC 签名，无需额外依赖）
 AUTH_COOKIE = "zjm_token"
 AUTH_SECRET = "zjm-server-local-secret"

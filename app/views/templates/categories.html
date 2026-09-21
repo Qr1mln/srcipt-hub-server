@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}分类管理{% endblock %}
+
+{% block content %}
+    <div class="nav">
+        <a href="/">← 返回首页</a>
+        <a href="/logout">退出登录</a>
+    </div>
+
+    <h1>分类管理</h1>
+    <p class="subtitle">数据存储于 SQLite（data/zjm.db），支持动态增、改、删</p>
+
+    <div class="form-row">
+        <input id="item-input" maxlength="100" placeholder="分类名称，如 生活日常" autocomplete="off">
+        <button id="add-btn">添加</button>
+    </div>
+    <p id="tip" class="tip"></p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>ID</th>
+                <th>分类名称</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="tbody">
+            {% for item in items %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td class="key">{{ item.id }}</td>
+                    <td>{{ item.item }}</td>
+                    <td class="actions"></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const API = '/api/categories';
+        const tbody = document.getElementById('tbody');
+        const tip = document.getElementById('tip');
+        const itemInput = document.getElementById('item-input');
+        const addBtn = document.getElementById('add-btn');
+
+        let items = [];
+        let editingId = null;
+
+        function showTip(text, ok) {
+            tip.textContent = text;
+            tip.className = ok === null ? 'tip' : (ok ? 'tip ok' : 'tip err');
+        }
+
+        function cell(value, className) {
+            const td = document.createElement('td');
+            if (className) td.className = className;
+            td.textContent = value;
+            return td;
+        }
+
+        function inputCell(id, value, maxLength) {
+            const td = document.createElement('td');
+            const input = document.createElement('input');
+            input.id = id;
+            input.value = value;
+            input.maxLength = maxLength;
+            td.appendChild(input);
+            return td;
+        }
+
+        function miniButton(text, className, handler) {
+            const button = document.createElement('button');
+            button.className = 'mini ' + className;
+            button.textContent = text;
+            button.addEventListener('click', handler);
+            return button;
+        }
+
+        function viewRow(item, index) {
+            const tr = document.createElement('tr');
+            const actions = document.createElement('td');
+            actions.className = 'actions';
+            actions.append(
+                miniButton('修改', '', () => {
+                    editingId = item.id;
+                    render();
+                    document.getElementById('edit-item').focus();
+                }),
+                miniButton('删除', 'danger', () => removeItem(item)),
+            );
+            tr.append(cell(index + 1), cell(item.id, 'key'), cell(item.item), actions);
+            return tr;
+        }
+
+        function editRow(item, index) {
+            const tr = document.createElement('tr');
+            tr.className = 'editing';
+            const actions = document.createElement('td');
+            actions.className = 'actions';
+            actions.append(
+                miniButton('保存', '', () => saveEdit(item)),
+                miniButton('取消', 'ghost', () => {
+                    editingId = null;
+                    render();
+                }),
+            );
+            tr.append(
+                cell(index + 1),
+                cell(item.id, 'key'),
+                inputCell('edit-item', item.item, 100),
+                actions,
+            );
+            return tr;
+        }
+
+        function render() {
+            tbody.innerHTML = '';
+            items.forEach((item, index) => {
+                tbody.appendChild(item.id === editingId ? editRow(item, index) : viewRow(item, index));
+            });
+        }
+
+        async function request(url, options) {
+            const response = await fetch(url, options);
+            return response.json();
+        }
+
+        async function loadItems() {
+            try {
+                const data = await request(API);
+                if (data.code === 200) {
+                    items = data.body;
+                    render();
+                } else {
+                    showTip(data.msg, false);
+                }
+            } catch (error) {
+                showTip('加载失败：' + error.message, false);
+            }
+        }
+
+        async function addItem() {
+            const item = itemInput.value.trim();
+            if (!item) {
+                showTip('分类名称不能为空', false);
+                return;
+            }
+            addBtn.disabled = true;
+            try {
+                const data = await request(API, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({item: item}),
+                });
+                if (data.code === 200) {
+                    itemInput.value = '';
+                    itemInput.focus();
+                    await loadItems();
+                    showTip('已添加：' + item, true);
+                } else {
+                    showTip(data.msg, false);
+                }
+            } catch (error) {
+                showTip('请求失败：' + error.message, false);
+            } finally {
+                addBtn.disabled = false;
+            }
+        }
+
+        async function saveEdit(item) {
+            const value = document.getElementById('edit-item').value.trim();
+            if (!value) {
+                showTip('分类名称不能为空', false);
+                return;
+            }
+            try {
+                const data = await request(API + '/' + encodeURIComponent(item.id), {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({item: value}),
+                });
+                if (data.code === 200) {
+                    editingId = null;
+                    await loadItems();
+                    showTip('已修改：' + value, true);
+                } else {
+                    showTip(data.msg, false);
+                }
+            } catch (error) {
+                showTip('请求失败：' + error.message, false);
+            }
+        }
+
+        async function removeItem(item) {
+            if (!window.confirm('确定删除「' + item.item + '」吗？')) return;
+            try {
+                const data = await request(API + '/' + encodeURIComponent(item.id), {method: 'DELETE'});
+                if (data.code === 200) {
+                    editingId = null;
+                    await loadItems();
+                    showTip('已删除：' + item.item, true);
+                } else {
+                    showTip(data.msg, false);
+                }
+            } catch (error) {
+                showTip('请求失败：' + error.message, false);
+            }
+        }
+
+        addBtn.addEventListener('click', addItem);
+        itemInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') addItem();
+        });
+
+        // 以服务端数据为准，加载完成后重绘（服务端已渲染首屏，避免空白）
+        loadItems();
+    </script>
+{% endblock %}
